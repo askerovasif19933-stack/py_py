@@ -28,7 +28,7 @@ def get_logger(name: str, log_file: str = 'add.log', level = logging.INFO):
 
         # фармат 
 
-        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(massage)s')
+        formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
 
         consol_handler.setFormatter(formatter)
         file_handler.setFormatter(formatter)

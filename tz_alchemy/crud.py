@@ -4,6 +4,10 @@ from database import Base, engine, get_session
 from data_filler import make_data, make_documents
 from models import Data, Documents
 
+from logger import get_logger
+
+logger = get_logger(__name__)
+
 
 # сначала удаляем старое значение потом переприсваиваем, что бы не добавлялись значения подряд
 def create_table():
@@ -27,7 +31,7 @@ def insert():
         session.add_all(insert_doc)
         session.commit()
 
-        print(f"Вставлено {len(insert_data)} данных и {len(insert_doc)} документов")
+        logger.info(f"Вставлено {len(insert_data)} данных и {len(insert_doc)} документов")
 
 
 
@@ -58,6 +62,7 @@ def create_indexes():
         Data.owner,
         Data.status
     ).create(bind=engine)
+    logger.info('Индексация полей завершина')
 
 
 def select_one_doc(session):
@@ -70,6 +75,11 @@ def select_one_doc(session):
 
     row = session.execute(stmt).first()
 
+    if row:
+        logger.info(f'Выбран документ с id = {row[0][0]}')
+    else:
+        logger.info('Нет необработаных документов')
+
     return row
 
 
@@ -78,6 +88,8 @@ def parsing_data(row: tuple):
     doc_id, jsonb = row
     obj = jsonb['objects']
     operation_details = jsonb['operation_details']
+
+    logger.debug(f'Документ {doc_id}, распарсен на {len(obj)} обьектов и {len(operation_details)} операций')
 
     return doc_id, obj, operation_details
 
@@ -92,6 +104,8 @@ def search_all_child(session, parent: list):
 
     parent_child = list(child)
     parent_child.extend(parent)
+
+    logger.debug(f'Найдено {len(child)} дочерних  для родительских {parent}')
     return parent_child
 
 
@@ -108,6 +122,7 @@ def correct_data(session, all_parand_child: list, operation_details: dict[str, d
             stmt = (update(Data).where(collum == old, Data.object.in_(all_parand_child)).values({operation: new}))
 
             session.execute(stmt)
+            logger.info(f'Обнавлен поле {operation} с {old} на {new} для {len(all_parand_child)} обьектов')
 
 
 
@@ -115,16 +130,21 @@ def set_processing_time(session, doc_id: str):
     """Установка даты и времени для обработаных документов"""
 
 
+
     document = session.get(Documents, doc_id)
     document.processed_at = datetime.datetime.now()
+    logger.info(f'Документ {doc_id} отмечен как обработанный')
 
 
 
 def process_single_document(session):
     """Обработка одного документа"""
-            
+
+    logger.info('Начинает обработку одного документа')    
+
     row = select_one_doc(session)
     if not row:
+        logger.info('Документов для обрабоатки нет')
         return None
 
     doc_id, object, operation_details = parsing_data(row)
@@ -132,6 +152,8 @@ def process_single_document(session):
 
     correct_data(session, all_parand_child, operation_details)
     set_processing_time(session, doc_id)
+    
+    logger.info(f'Обработка докумнта {doc_id} завершина')
 
     return row
 
