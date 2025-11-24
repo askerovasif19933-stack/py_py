@@ -8,10 +8,13 @@ engine = create_engine(f"postgresql+psycopg2://{user}:{password}@{host}/{db_name
 
 
 
-def get_new_base():
+def get_new_base(base: str):
     try:
         with engine.begin() as conn:
-            conn.execute(text(f"CREATE DATABASE {new_base}"))
+            conn.execute(text(f"CREATE DATABASE {base}"))
         print('база создана')
     except Exception as e:
         print(e)
+
+if __name__ == '__main__':
+    get_new_base(new_base)

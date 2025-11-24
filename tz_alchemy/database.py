@@ -1,7 +1,7 @@
 from sqlalchemy.orm import sessionmaker , DeclarativeBase
 from sqlalchemy import create_engine
 from config import host, password, user
-from tz_alchemy.basse_tz import new_base
+from basse_tz import new_base
 
 
 

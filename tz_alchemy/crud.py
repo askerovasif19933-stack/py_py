@@ -2,7 +2,7 @@
 import datetime
 from database import Base, engine, get_session
 from data_filler import make_data, make_documents
-from tz_sql.tz_alchemy.models import Data, Documents
+from models import Data, Documents
 
 
 # сначала удаляем старое значение потом переприсваиваем, что бы не добавлялись значения подряд
