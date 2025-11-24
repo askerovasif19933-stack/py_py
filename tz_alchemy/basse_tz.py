@@ -16,5 +16,4 @@ def get_new_base(base: str):
     except Exception as e:
         print(e)
 
-if __name__ == '__main__':
-    get_new_base(new_base)
+get_new_base(new_base)

@@ -1,5 +1,5 @@
 
-from crud import create_table, insert, process_single_document
+from crud import create_table, insert, process_single_document, create_indexes
 
 from database import get_session
 from sqlalchemy import select
@@ -35,4 +35,5 @@ def main():
 
 create_table()
 insert()
+create_indexes()
 print(main())

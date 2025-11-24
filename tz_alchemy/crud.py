@@ -31,7 +31,33 @@ def insert():
 
 
 
-from sqlalchemy import select, and_, update
+
+from sqlalchemy import select, and_, update, Index
+
+
+def create_indexes():
+    """Создание индексов для ускорения запросов"""
+
+    # Комбинированный индекс для Documents (processed_at + document_type)
+    Index(
+        'idx_documents_processed_type',
+        Documents.processed_at,
+        Documents.document_type
+    ).create(bind=engine)
+
+    # Хэш-индекс для Data.parent (PostgreSQL поддерживает HASH)
+    Index(
+        'idx_data_parent_hash',
+        Data.parent,
+        postgresql_using='hash'
+    ).create(bind=engine)
+
+    # Комбинированный индекс для Data.owner + Data.status
+    Index(
+        'idx_data_owner_status',
+        Data.owner,
+        Data.status
+    ).create(bind=engine)
 
 
 def select_one_doc(session):
